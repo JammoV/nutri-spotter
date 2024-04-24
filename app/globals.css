@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-size: 50%;
+    background: #FFF9F3;
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+}
+
+p {
+    font-size: 1rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+* {
+    box-sizing: border-box;
+}
