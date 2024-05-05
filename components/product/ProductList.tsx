@@ -2,10 +2,10 @@
 
 import type { FC } from 'react'
 import { Product } from '@/client/directus/interfaces/Product'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { getProducts } from '@/client/directus/NutriAPI'
 import useDebounce from '@/lib/hooks/useDebounce'
+import ProductListItem from '@/components/product/ProductListItem'
 
 interface ProductListProps {
     products: Product[]
@@ -37,21 +37,16 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
             <div>
                 <input
                     type="text"
-                    className="w-full border p-2 my-2"
+                    className="w-full border rounded p-2 mb-4 text-white bg-transparent"
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Zoek op product naam..."
+                    placeholder="Search product by name..."
+                    autoFocus
                 />
             </div>
             <div className="flex flex-col gap-4">
-                {searchProducts.map((product) => {
-                    return (
-                        <div key={product.id} className="border p-2">
-                            <Link href={`/product/${product.id}`}>
-                                {product.name} ({product.brand?.name})
-                            </Link>
-                        </div>
-                    )
-                })}
+                {searchProducts.map((product) => (
+                    <ProductListItem key={product.id} product={product} />
+                ))}
             </div>
         </div>
     )

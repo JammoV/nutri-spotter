@@ -1,126 +1,77 @@
 import client from '@/client/directus/Client'
 import {
-    AdapterAccount,
     AdapterSession,
     AdapterUser,
     VerificationToken,
 } from 'next-auth/adapters'
 import {
-    CreateUserMutation,
-    CreateUserMutationResponse,
-} from '@/client/directus/mutations/CreateUserMutation'
-import {
-    GetUserQuery,
-    GetUserQueryResponse,
-} from '@/client/directus/queries/GetUserQuery'
-import {
-    GetAccountQuery,
-    GetAccountQueryResponse,
-} from '@/client/directus/queries/GetAccountQuery'
-import {
-    UpdateUserMutation,
-    UpdateUserMutationResponse,
-} from '@/client/directus/mutations/UpdateUserMutation'
-import {
-    CreateAccountMutation,
-    CreateAccountMutationResponse,
-} from '@/client/directus/mutations/CreateAccountMutation'
-import {
-    CreateSessionMutation,
-    CreateSessionMutationResponse,
-} from '@/client/directus/mutations/CreateSessionMutation'
-import {
-    GetSessionQuery,
-    GetSessionQueryResponse,
-} from '@/client/directus/queries/GetSessionQuery'
-import {
-    GetUserByEmailQuery,
-    GetUserByEmailQueryResponse,
-} from '@/client/directus/queries/GetUserByEmailQuery'
-import {
-    UpdateSessionMutation,
-    UpdateSessionMutationResponse,
-} from '@/client/directus/mutations/UpdateSessionMutation'
-import {
-    DeleteSessionMutation,
-    DeleteSessionMutationResponse,
-} from '@/client/directus/mutations/DeleteSessionMutation'
-import {
-    CreateVerificationTokenMutation,
-    CreateVerificationTokenMutationResponse,
-} from '@/client/directus/mutations/CreateVerificationTokenMutation'
+    createItem,
+    deleteItem,
+    readItem,
+    readItems,
+    updateItem,
+} from '@directus/sdk'
+import { Account } from '@/client/directus/interfaces/Account'
 
 export const createUser = async (user: AdapterUser): Promise<AdapterUser> => {
-    const directusUser = await client.query<CreateUserMutationResponse>(
-        CreateUserMutation,
-        {
-            ...user,
-        }
-    )
-
-    return directusUser.create_ns_users_item
+    return await client.request(createItem('ns_users', user))
 }
 
 export const getUser = async (id: string): Promise<AdapterUser | null> => {
-    const directusUser = await client.query<GetUserQueryResponse>(
-        GetUserQuery,
-        { id: id }
-    )
-
-    if (!directusUser.ns_users_by_id) {
-        return null
-    }
-
-    return directusUser.ns_users_by_id
+    return await client.request(readItem('ns_users', id))
 }
 
 export const getUserByEmail = async (
     email: string
 ): Promise<AdapterUser | null> => {
-    const directusUsers = await client.query<GetUserByEmailQueryResponse>(
-        GetUserByEmailQuery,
-        { email: email }
+    const users = await client.request(
+        readItems('ns_users', {
+            filter: {
+                email: {
+                    _eq: email,
+                },
+            },
+        })
     )
 
-    if (!directusUsers.ns_users || directusUsers.ns_users.length !== 1) {
+    if (!users || users.length !== 1) {
         return null
     }
 
-    return directusUsers.ns_users.shift() || null
+    return users.shift() || null
 }
 
 export const getUserByAccountId = async (
     providerAccountId: string
 ): Promise<AdapterUser | null> => {
-    const directusAccounts = await client.query<GetAccountQueryResponse>(
-        GetAccountQuery,
-        { providerAccountId: providerAccountId }
+    const accounts = await client.request(
+        readItems('ns_accounts', {
+            filter: {
+                providerAccountId: {
+                    _eq: providerAccountId,
+                },
+            },
+        })
     )
 
-    if (
-        !directusAccounts.ns_accounts ||
-        directusAccounts.ns_accounts.length !== 1
-    ) {
+    if (!accounts || accounts.length !== 1) {
         return null
     }
 
-    const directusAccount = directusAccounts.ns_accounts.shift()
+    const account = accounts.shift()
 
-    return directusAccount ? getUser(directusAccount.userId) : null
+    return account?.userId ? getUser(account.userId as string) : null
 }
 
 export const updateUser = async (
     user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>
 ): Promise<AdapterUser> => {
-    const updatedUser = await client.query<UpdateUserMutationResponse>(
-        UpdateUserMutation,
-        {
-            ...user,
-        }
+    const updatedUser = await client.request(
+        updateItem('ns_users', user.id, { ...user })
     )
 
-    if (updatedUser.update_ns_users_item) {
-        return updatedUser.update_ns_users_item
+    if (updatedUser) {
+        return updatedUser
     }
 
     // Could not update
@@ -132,33 +83,29 @@ export const updateUser = async (
 }
 
 export const createAccount = async (
-    account: AdapterAccount
-): Promise<AdapterAccount | null> => {
-    const directusAccounts = await client.query<CreateAccountMutationResponse>(
-        CreateAccountMutation,
-        {
-            ...account,
-        }
-    )
+    account: Account
+): Promise<Account | null> => {
+    const result = await client.request(createItem('ns_accounts', account))
 
-    return directusAccounts.create_ns_accounts_item
+    if (result.length === 1) {
+        return result[0] as Account
+    }
+
+    return null
 }
 
 export const createSession = async (
     session: AdapterSession
 ): Promise<AdapterSession> => {
-    const directusSession = await client.query<CreateSessionMutationResponse>(
-        CreateSessionMutation,
-        {
-            ...session,
-        }
+    const directusSession = await client.request(
+        createItem('ns_sessions', session)
     )
 
-    if (directusSession.create_ns_sessions_item) {
+    if (directusSession) {
         return {
-            userId: directusSession.create_ns_sessions_item.userId,
-            sessionToken: directusSession.create_ns_sessions_item.sessionToken,
-            expires: new Date(directusSession.create_ns_sessions_item.expires),
+            userId: directusSession.userId,
+            sessionToken: directusSession.sessionToken,
+            expires: new Date(directusSession.expires),
         }
     }
 
@@ -173,19 +120,21 @@ export const createSession = async (
 export const getSession = async (
     sessionToken: string
 ): Promise<AdapterSession | null> => {
-    const directusSessions = await client.query<GetSessionQueryResponse>(
-        GetSessionQuery,
-        { sessionToken: sessionToken }
+    const sessions = await client.request(
+        readItems('ns_sessions', {
+            filter: {
+                sessionToken: {
+                    _eq: sessionToken,
+                },
+            },
+        })
     )
 
-    if (
-        !directusSessions.ns_sessions ||
-        directusSessions.ns_sessions.length !== 1
-    ) {
+    if (!sessions || sessions.length !== 1) {
         return null
     }
 
-    const directusSession = directusSessions.ns_sessions.shift()
+    const directusSession = sessions.shift()
 
     if (!directusSession) return null
 
@@ -216,46 +165,19 @@ export const getSessionAndUser = async (
 export const updateSession = async (
     session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
 ): Promise<AdapterSession | null> => {
-    const updatedSession = await client.query<UpdateSessionMutationResponse>(
-        UpdateSessionMutation,
-        {
-            ...session,
-        }
+    return await client.request(
+        updateItem('ns_sessions', session.sessionToken, { ...session })
     )
-
-    return updatedSession.update_ns_sessions_item || null
 }
 
-export const deleteSession = async (sessionToken: string): Promise<null> => {
-    const updatedSession = await client.query<DeleteSessionMutationResponse>(
-        DeleteSessionMutation,
-        {
-            sessionToken: sessionToken,
-        }
-    )
-
-    if (!updatedSession.delete_ns_sessions_item?.id) {
-        // could not delete
-    }
-
-    return null
+export const deleteSession = async (sessionToken: string): Promise<void> => {
+    return await client.request(deleteItem('ns_sessions', sessionToken))
 }
 
 export const createVerificationToken = async (
     verificationToken: VerificationToken
 ): Promise<VerificationToken | null> => {
-    const directusVerificationToken =
-        await client.query<CreateVerificationTokenMutationResponse>(
-            CreateVerificationTokenMutation,
-            {
-                ...verificationToken,
-            }
-        )
-
-    if (directusVerificationToken.create_ns_verification_tokens_item) {
-        return directusVerificationToken.create_ns_verification_tokens_item
-    }
-
-    // Could not create
-    return null
+    return await client.request(
+        createItem('ns_verification_tokens', verificationToken)
+    )
 }

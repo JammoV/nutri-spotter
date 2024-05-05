@@ -3,23 +3,21 @@ import { auth } from 'auth'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const UserIcon: FC = async () => {
-    const session = await auth()
+export interface UserIconProps {
+    imgSrc: string
+}
 
-    if (!session?.user) return <></>
-
+const UserIcon: FC<UserIconProps> = async ({ imgSrc }) => {
     return (
         <Link href={'/dashboard'} className="cursor-pointer">
-            {session.user.image && (
-                <Image
-                    src={session.user.image}
-                    alt={session.user.name || ''}
-                    quality={100}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                />
-            )}
+            <Image
+                src={imgSrc}
+                alt={''}
+                quality={100}
+                width={80}
+                height={80}
+                className="rounded-full"
+            />
         </Link>
     )
 }

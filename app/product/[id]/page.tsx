@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                 {product.nutrition ? (
                     <ProductNutritionTable
                         productNutrition={product.nutrition}
-                        portionSize={product.portionSize}
+                        portionSize={product.portionSize || 10}
                         productId={product.id}
                     />
                 ) : (

@@ -49,7 +49,6 @@ const DirectusAdapter = (): Adapter => {
         },
         /* Database session management */
         createSession(session: AdapterSession): Awaitable<AdapterSession> {
-            console.log(session)
             return createSession(session)
         },
         getSessionAndUser(

@@ -1,14 +1,15 @@
 'use client'
 
 import type { FC } from 'react'
-import { NutritionData } from '@/client/directus/interfaces/NutritionData'
+import { Nutrition } from '@/client/directus/interfaces/Nutrition'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { createUserNutrition } from '@/client/directus/NutriAPI'
 import NutritionTable from '@/components/product/NutritionTable'
+import { calculatePortionNutrition } from '@/lib/functions'
 
 interface ProductNutritionTableProps {
-    productNutrition: NutritionData
+    productNutrition: Nutrition
     productId: string
     portionSize: number
 }
@@ -20,39 +21,15 @@ const ProductNutritionTable: FC<ProductNutritionTableProps> = ({
 }) => {
     const { data: session } = useSession()
 
-    const calculatePortionNutrition = (): NutritionData => {
-        const calculatePortionSize = (baseValue: number): number => {
-            if (baseValue === 0) return 0
-
-            const portionSize = (baseValue / 100) * size
-
-            return Number(portionSize.toFixed(2))
-        }
-
-        return {
-            energy: calculatePortionSize(productNutrition.energy),
-            fat: calculatePortionSize(productNutrition.fat),
-            saturated_fat: calculatePortionSize(productNutrition.saturated_fat),
-            unsaturated_fat: calculatePortionSize(
-                productNutrition.unsaturated_fat
-            ),
-            carbs: calculatePortionSize(productNutrition.carbs),
-            sugar: calculatePortionSize(productNutrition.sugar),
-            fibres: calculatePortionSize(productNutrition.fibres),
-            protein: calculatePortionSize(productNutrition.protein),
-            salt: calculatePortionSize(productNutrition.salt),
-        }
-    }
-
     const [size, setSize] = useState<number>(portionSize)
     const [loading, setLoading] = useState<boolean>(false)
-    const [portionNutrition, setPortionNutrition] = useState<NutritionData>(
-        calculatePortionNutrition()
+    const [portionNutrition, setPortionNutrition] = useState<Nutrition>(
+        calculatePortionNutrition(size, productNutrition)
     )
     const [resultMsg, setResultMsg] = useState<string | null>(null)
 
     useEffect(() => {
-        setPortionNutrition(calculatePortionNutrition())
+        setPortionNutrition(calculatePortionNutrition(size, productNutrition))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [size])
 
@@ -66,12 +43,13 @@ const ProductNutritionTable: FC<ProductNutritionTableProps> = ({
         const userNutritionResult = await createUserNutrition({
             userId: session?.user?.id,
             productId: productId,
+            amount: size,
             nutrition: portionNutrition,
         })
 
         if (userNutritionResult) {
             setResultMsg(
-                `Voedingswaardes succesvol opgeslagen (${userNutritionResult})`
+                `Voedingswaardes succesvol opgeslagen (${userNutritionResult.id})`
             )
         } else {
             setResultMsg(

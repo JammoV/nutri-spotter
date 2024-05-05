@@ -10,8 +10,13 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                dark: '#444444',
-                grey: '#3C484B',
+                primary: '#DF7B32',
+                green: '#6BB92D',
+                black: '#11101B',
+                white: '#f2f2f2',
+                'grey-light': '#BDBDBD',
+                grey: '#828282',
+                container: '#181722',
             },
         },
         fontFamily: {

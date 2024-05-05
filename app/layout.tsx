@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
 import './globals.css'
 import React from 'react'
-import Container from '@/components/layout/Container'
 import Header from '@/components/layout/Header'
 
 const roboto = Roboto({
@@ -24,11 +23,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="nl">
-            <body className={`${roboto.variable}`}>
-                <Container>
+            <body className={`${roboto.variable} bg-black text-white mb-8`}>
+                <div className="container max-w-2xl mx-auto p-4 sm:p-0">
                     <Header />
                     <main className="flex-grow">{children}</main>
-                </Container>
+                </div>
             </body>
         </html>
     )

@@ -1,9 +1,6 @@
-export interface User {
-    id: string
-    email: string
-    emailVerified: Date | null
-    name: string | null
-    image: string | null
+import { AdapterUser } from 'next-auth/adapters'
+
+export interface User extends AdapterUser {
     target_energy: number
     target_fat: number
     target_saturated_fat: number

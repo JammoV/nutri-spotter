@@ -1,6 +1,7 @@
 import { auth } from 'auth'
 import { signIn } from 'auth'
 import { redirect } from 'next/navigation'
+import Button from '@/components/layout/Button'
 
 export default async function Index() {
     const session = await auth()
@@ -10,14 +11,14 @@ export default async function Index() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="w-full h-screen flex flex-row justify-center items-center">
             <form
                 action={async () => {
                     'use server'
                     await signIn('google')
                 }}
             >
-                <button>Sign In</button>
+                <Button>Sign in with Google</Button>
             </form>
         </div>
     )

@@ -1,0 +1,3 @@
+.graphqlconfig
+directus/schema.graphql
+__generated__

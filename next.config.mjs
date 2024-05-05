@@ -6,6 +6,11 @@ const nextConfig = {
             protocol: 'https',
         }]
     },
+    logging: {
+        fetches: {
+            fullUrl: true
+        }
+    }
 }
 
 export default nextConfig

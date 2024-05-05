@@ -1,6 +1,4 @@
-export interface NutritionData {
-    id?: string
-    date?: Date
+export interface Nutrition {
     energy: number
     fat: number
     saturated_fat: number

@@ -1,11 +1,12 @@
 import type { FC } from 'react'
-import { NutritionData } from '@/client/directus/interfaces/NutritionData'
+import { Nutrition } from '@/client/directus/interfaces/Nutrition'
+import { formatNumber } from '@/lib/functions'
 
 interface NutritionTableProps {
     columnLeftTitle: string
     columnRightTitle: string
-    columnLeft: NutritionData
-    columnRight: NutritionData
+    columnLeft: Nutrition
+    columnRight: Nutrition
     withPercentage?: boolean
 }
 
@@ -45,12 +46,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
             </thead>
             <tbody>
                 <tr>
-                    <td className="border border-slate-700 p-1">Energie</td>
+                    <td className="border border-slate-700 p-1">Energy</td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.energy} kcal
+                        {formatNumber(columnLeft.energy)} kcal
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnRight.energy} kcal
+                        {formatNumber(columnRight.energy)} kcal
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
@@ -63,41 +64,37 @@ const NutritionTable: FC<NutritionTableProps> = ({
                 </tr>
                 <tr>
                     <td className="border border-slate-700 p-1">
-                        <span>Vetten</span>
+                        <span>Fat</span>
                         {columnLeft.saturated_fat > 0 && (
-                            <span className="block pl-4">
-                                waarvan verzadigde vetzuren
+                            <span className="block pl-4">saturated fat</span>
+                        )}
+                        {columnLeft.unsaturated_fat > 0 && (
+                            <span className="block pl-4">unsaturated fat</span>
+                        )}
+                    </td>
+                    <td className="border border-slate-700 text-right p-1">
+                        <span>{formatNumber(columnLeft.fat)} g</span>
+                        {columnLeft.saturated_fat > 0 && (
+                            <span className="block">
+                                {formatNumber(columnLeft.saturated_fat)} g
                             </span>
                         )}
                         {columnLeft.unsaturated_fat > 0 && (
-                            <span className="block pl-4">
-                                waarvan onverzadigde vetzuren
+                            <span className="block">
+                                {formatNumber(columnLeft.unsaturated_fat)} g
                             </span>
                         )}
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        <span>{columnLeft.fat} g</span>
+                        <span>{formatNumber(columnRight.fat)} g</span>
                         {columnLeft.saturated_fat > 0 && (
                             <span className="block">
-                                {columnLeft.saturated_fat} g
+                                {formatNumber(columnRight.saturated_fat)} g
                             </span>
                         )}
                         {columnLeft.unsaturated_fat > 0 && (
                             <span className="block">
-                                {columnLeft.unsaturated_fat} g
-                            </span>
-                        )}
-                    </td>
-                    <td className="border border-slate-700 text-right p-1">
-                        <span>{columnRight.fat} g</span>
-                        {columnLeft.saturated_fat > 0 && (
-                            <span className="block">
-                                {columnRight.saturated_fat} g
-                            </span>
-                        )}
-                        {columnLeft.unsaturated_fat > 0 && (
-                            <span className="block">
-                                {columnRight.unsaturated_fat} g
+                                {formatNumber(columnRight.unsaturated_fat)} g
                             </span>
                         )}
                     </td>
@@ -131,14 +128,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
                     )}
                 </tr>
                 <tr>
-                    <td className="border border-slate-700 p-1">
-                        Koolhydraten
+                    <td className="border border-slate-700 p-1">Carbs</td>
+                    <td className="border border-slate-700 text-right p-1">
+                        {formatNumber(columnLeft.carbs)} g
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.carbs} g
-                    </td>
-                    <td className="border border-slate-700 text-right p-1">
-                        {columnRight.carbs} g
+                        {formatNumber(columnRight.carbs)} g
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
@@ -150,12 +145,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
                     )}
                 </tr>
                 <tr>
-                    <td className="border border-slate-700 p-1">Suikers</td>
+                    <td className="border border-slate-700 p-1">Sugar</td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.sugar} g
+                        {formatNumber(columnLeft.sugar)} g
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnRight.sugar} g
+                        {formatNumber(columnRight.sugar)} g
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
@@ -167,12 +162,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
                     )}
                 </tr>
                 <tr>
-                    <td className="border border-slate-700 p-1">Vezels</td>
+                    <td className="border border-slate-700 p-1">Fibres</td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.fibres} g
+                        {formatNumber(columnLeft.fibres)} g
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnRight.fibres} g
+                        {formatNumber(columnRight.fibres)} g
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
@@ -184,12 +179,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
                     )}
                 </tr>
                 <tr>
-                    <td className="border border-slate-700 p-1">Eiwitten</td>
+                    <td className="border border-slate-700 p-1">Protein</td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.protein} g
+                        {formatNumber(columnLeft.protein)} g
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnRight.protein} g
+                        {formatNumber(columnRight.protein)} g
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
@@ -201,12 +196,12 @@ const NutritionTable: FC<NutritionTableProps> = ({
                     )}
                 </tr>
                 <tr>
-                    <td className="border border-slate-700 p-1">Zout</td>
+                    <td className="border border-slate-700 p-1">Salt</td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnLeft.salt} g
+                        {formatNumber(columnLeft.salt)} g
                     </td>
                     <td className="border border-slate-700 text-right p-1">
-                        {columnRight.salt} g
+                        {formatNumber(columnRight.salt)} g
                     </td>
                     {withPercentage && (
                         <td className="border border-slate-700 text-right p-1">
